@@ -244,96 +244,184 @@
       pointer-events: none;
     }
 
-    /* ===== VOICE BUTTON ===== */
-    .voice-btn {
-      width: 72px; height: 72px;
-      border-radius: 50%;
+    /* ===== MIC CARD ===== */
+    .mic-card {
+      width: 100%;
+      border-radius: 24px;
       border: none;
       cursor: pointer;
-      position: relative;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      box-shadow: 0 12px 35px rgba(99,102,241,0.5), 0 4px 12px rgba(0,0,0,0.3);
-      display: flex; align-items: center; justify-content: center;
-      transition: transform 0.2s, box-shadow 0.2s;
-      animation: fadeUp 0.8s 0.6s cubic-bezier(0.16,1,0.3,1) both;
+      padding: 0;
+      animation: fadeUp 0.8s 0.55s cubic-bezier(0.16,1,0.3,1) both;
       -webkit-tap-highlight-color: transparent;
-    }
-    .voice-btn svg { width: 28px; height: 28px; fill: white; position: relative; z-index: 1; }
-    .voice-btn:active { transform: scale(0.92); }
-
-    .voice-btn.listening {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      box-shadow: 0 12px 35px rgba(239,68,68,0.6), 0 4px 12px rgba(0,0,0,0.3);
-      animation: pulse 1s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 12px 35px rgba(239,68,68,0.6), 0 0 0 0 rgba(239,68,68,0.4); }
-      50% { box-shadow: 0 12px 35px rgba(239,68,68,0.6), 0 0 0 16px rgba(239,68,68,0); }
+      background: none;
     }
 
-    .voice-label {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 6px;
-      animation: fadeUp 0.8s 0.7s both;
+    .mic-card-inner {
+      position: relative;
+      border-radius: 24px;
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      overflow: hidden;
+      transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+
+      /* OFF state */
+      background: linear-gradient(145deg, #1c1c2e, #13131f);
+      border: 2px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .mic-card:active .mic-card-inner { transform: scale(0.97); }
+
+    /* ON state */
+    .mic-card.on .mic-card-inner {
+      background: linear-gradient(145deg, #1a0a0a, #2d0808);
+      border-color: rgba(239,68,68,0.5);
+      box-shadow: 0 8px 30px rgba(239,68,68,0.25), 0 0 0 1px rgba(239,68,68,0.2) inset, inset 0 1px 0 rgba(255,100,100,0.15);
+    }
+
+    /* Animated background glow when ON */
+    .mic-card-inner::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(239,68,68,0.15) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    .mic-card.on .mic-card-inner::after { opacity: 1; }
+
+    /* Mic circle icon */
+    .mic-circle {
+      width: 58px; height: 58px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      transition: background 0.3s, box-shadow 0.3s;
+
+      /* OFF */
+      background: linear-gradient(135deg, #374151, #1f2937);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+    .mic-card.on .mic-circle {
+      background: linear-gradient(135deg, #f87171, #dc2626);
+      box-shadow: 0 6px 20px rgba(239,68,68,0.55), 0 0 0 0 rgba(239,68,68,0.4);
+      animation: micPulse 1.2s ease-in-out infinite;
+    }
+    @keyframes micPulse {
+      0%,100% { box-shadow: 0 6px 20px rgba(239,68,68,0.55), 0 0 0 0 rgba(239,68,68,0.35); }
+      50%      { box-shadow: 0 6px 20px rgba(239,68,68,0.55), 0 0 0 14px rgba(239,68,68,0); }
+    }
+
+    .mic-circle svg { width: 26px; height: 26px; fill: white; position: relative; z-index: 1; }
+
+    /* Sound bars (only visible when ON) */
+    .sound-bars {
+      display: flex; align-items: center; gap: 3px;
+      position: absolute; right: -2px; top: 50%; transform: translateY(-50%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .mic-card.on .sound-bars { opacity: 1; }
+    .bar {
+      width: 3px; border-radius: 2px;
+      background: rgba(239,68,68,0.8);
+      animation: barAnim 0.8s ease-in-out infinite;
+    }
+    .bar:nth-child(1) { height: 8px;  animation-delay: 0s; }
+    .bar:nth-child(2) { height: 16px; animation-delay: 0.15s; }
+    .bar:nth-child(3) { height: 22px; animation-delay: 0.3s; }
+    .bar:nth-child(4) { height: 16px; animation-delay: 0.45s; }
+    .bar:nth-child(5) { height: 8px;  animation-delay: 0.6s; }
+    @keyframes barAnim {
+      0%,100% { transform: scaleY(0.4); opacity: 0.5; }
+      50%      { transform: scaleY(1);   opacity: 1; }
+    }
+
+    /* Text area */
+    .mic-texts { flex: 1; text-align: right; }
+    .mic-title {
+      font-size: 16px; font-weight: 700;
+      transition: color 0.3s;
+      color: rgba(255,255,255,0.6);
+      display: block;
+    }
+    .mic-card.on .mic-title { color: #fca5a5; }
+
+    .mic-sub {
+      font-size: 12px; margin-top: 4px;
+      transition: color 0.3s;
+      color: rgba(255,255,255,0.3);
+      display: block;
+    }
+    .mic-card.on .mic-sub { color: rgba(252,165,165,0.7); }
+
+    /* Transcript live display */
+    .mic-transcript {
+      font-size: 12px; margin-top: 6px;
+      color: #fbbf24;
+      display: none;
+      font-style: italic;
+    }
+    .mic-card.on .mic-transcript { display: block; }
+
+    /* ON/OFF badge */
+    .mic-badge {
+      position: absolute;
+      top: 14px; left: 16px;
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.1em;
+      padding: 4px 10px;
+      border-radius: 100px;
+      transition: all 0.3s;
+
+      /* OFF */
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .mic-card.on .mic-badge {
+      background: rgba(239,68,68,0.2);
+      color: #f87171;
+      border-color: rgba(239,68,68,0.4);
     }
 
     /* ===== VOICE STATUS BAR ===== */
     .voice-status {
       width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 14px 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      min-height: 52px;
-      animation: fadeUp 0.8s 0.65s both;
-      transition: background 0.3s;
+      gap: 10px;
+      min-height: 46px;
+      animation: fadeUp 0.8s 0.6s both;
+      transition: background 0.3s, border-color 0.3s;
     }
     .voice-status.active {
-      background: rgba(99,102,241,0.1);
-      border-color: rgba(99,102,241,0.3);
+      background: rgba(99,102,241,0.08);
+      border-color: rgba(99,102,241,0.25);
     }
     .voice-status.success {
-      background: rgba(34,197,94,0.1);
-      border-color: rgba(34,197,94,0.3);
+      background: rgba(34,197,94,0.08);
+      border-color: rgba(34,197,94,0.25);
     }
     .voice-dot {
-      width: 8px; height: 8px;
+      width: 7px; height: 7px;
       border-radius: 50%;
-      background: var(--muted);
+      background: rgba(255,255,255,0.2);
       flex-shrink: 0;
       transition: background 0.3s;
     }
-    .voice-status.active .voice-dot { background: #6366f1; animation: blink 0.8s infinite; }
+    .voice-status.active .voice-dot { background: #6366f1; animation: blink 0.7s infinite; }
     .voice-status.success .voice-dot { background: #22c55e; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
     .voice-status-text { font-size: 13px; color: var(--muted); flex: 1; }
-    .voice-status.active .voice-status-text { color: rgba(255,255,255,0.8); }
+    .voice-status.active .voice-status-text { color: rgba(255,255,255,0.85); }
     .voice-status.success .voice-status-text { color: #4ade80; }
-
-    /* Waves around voice btn when listening */
-    .waves {
-      position: absolute; inset: -12px;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .wave {
-      position: absolute; inset: 0;
-      border-radius: 50%;
-      border: 2px solid rgba(239,68,68,0.4);
-      animation: waveOut 1.5s ease-out infinite;
-      opacity: 0;
-    }
-    .wave:nth-child(2) { animation-delay: 0.5s; }
-    .wave:nth-child(3) { animation-delay: 1s; }
-    @keyframes waveOut {
-      0% { transform: scale(1); opacity: 0.6; }
-      100% { transform: scale(1.8); opacity: 0; }
-    }
 
     .ripple {
       position: absolute;
@@ -459,23 +547,34 @@
     </button>
   </div>
 
+  <!-- MIC CARD -->
+  <button class="mic-card" id="micCard" onclick="toggleVoice()">
+    <div class="mic-card-inner">
+      <div class="mic-badge" id="micBadge">OFF</div>
+      <div class="mic-circle" id="micCircle">
+        <svg id="micIcon" viewBox="0 0 24 24">
+          <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+        </svg>
+        <div class="sound-bars">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+      <div class="mic-texts">
+        <span class="mic-title" id="micTitle">میکروفون خاموشه</span>
+        <span class="mic-sub" id="micSub">برای فعال کردن لمس کن</span>
+        <span class="mic-transcript" id="micTranscript">🎤 منتظر دستور...</span>
+      </div>
+    </div>
+  </button>
+
   <!-- Voice status bar -->
   <div class="voice-status" id="voiceStatus">
     <div class="voice-dot"></div>
-    <span class="voice-status-text" id="voiceStatusText">اسم برنامه رو بگو تا باز بشه...</span>
-  </div>
-
-  <!-- Voice button -->
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-    <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
-      <div class="waves" id="waves" style="display:none">
-        <div class="wave"></div>
-        <div class="wave"></div>
-        <div class="wave"></div>
-      </div>
-      <svg id="micIcon" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
-    </button>
-    <span class="voice-label" id="voiceLabel">ضبط صدا</span>
+    <span class="voice-status-text" id="voiceStatusText">اسم برنامه رو بگو: واتساپ، دوربین، ایمیل، اینستاگرام</span>
   </div>
 
   <!-- Exit button -->
@@ -598,6 +697,7 @@
         }
       }
       transcript = transcript.toLowerCase().trim();
+      document.getElementById('micTranscript').textContent = '🎤 ' + transcript;
       setStatusText('شنیدم: ' + transcript, 'active');
 
       if (e.results[e.resultIndex].isFinal) {
@@ -668,24 +768,30 @@
 
   function setListeningUI(listening) {
     isListening = listening;
-    const btn = document.getElementById('voiceBtn');
-    const waves = document.getElementById('waves');
-    const label = document.getElementById('voiceLabel');
+    const card = document.getElementById('micCard');
+    const badge = document.getElementById('micBadge');
+    const title = document.getElementById('micTitle');
+    const sub = document.getElementById('micSub');
+    const transcript = document.getElementById('micTranscript');
     const micIcon = document.getElementById('micIcon');
 
     if (listening) {
-      btn.classList.add('listening');
-      waves.style.display = 'block';
-      label.textContent = 'در حال گوش دادن...';
-      micIcon.innerHTML = '<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>';
-      setStatusText('داری چی می‌گی؟ 🎤', 'active');
+      card.classList.add('on');
+      badge.textContent = 'ON';
+      title.textContent = 'میکروفون روشنه 🔴';
+      sub.textContent = 'داره گوش میده — دوباره لمس کن تا خاموش بشه';
+      transcript.textContent = '🎤 منتظر دستور...';
+      micIcon.innerHTML = '<path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>';
+      setStatusText('🎤 داری چی می‌گی؟ بگو اسم برنامه رو...', 'active');
     } else {
-      btn.classList.remove('listening');
-      waves.style.display = 'none';
-      label.textContent = 'ضبط صدا';
+      card.classList.remove('on');
+      badge.textContent = 'OFF';
+      title.textContent = 'میکروفون خاموشه';
+      sub.textContent = 'برای فعال کردن لمس کن';
+      transcript.textContent = '🎤 منتظر دستور...';
       micIcon.innerHTML = '<path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>';
       if (!document.getElementById('voiceStatusText').textContent.includes('✓')) {
-        setStatusText('اسم برنامه رو بگو تا باز بشه...', '');
+        setStatusText('اسم برنامه رو بگو: واتساپ، دوربین، ایمیل، اینستاگرام', '');
       }
     }
   }
