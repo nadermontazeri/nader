@@ -548,7 +548,7 @@
   </div>
 
   <!-- MIC CARD -->
-  <button class="mic-card" id="micCard" onclick="toggleVoice()">
+  <button class="mic-card" id="micCard">
     <div class="mic-card-inner">
       <div class="mic-badge" id="micBadge">OFF</div>
       <div class="mic-circle" id="micCircle">
@@ -666,59 +666,69 @@
   // ===== VOICE RECOGNITION =====
   let recognition = null;
   let isListening = false;
+  let restartTimer = null;
 
-  // Keywords map - Persian + English variants
   const keywords = {
     whatsapp: ['واتساپ','واتس','واتز','whatsapp','وات'],
-    camera: ['دوربین','کمرا','عکس','camera','فیلم'],
-    email: ['ایمیل','میل','email','mail','پست'],
-    instagram: ['اینستاگرام','اینستا','insta','instagram','گرام']
+    camera:   ['دوربین','کمرا','عکس','camera','فیلم'],
+    email:    ['ایمیل','میل','email','mail','پست'],
+    instagram:['اینستاگرام','اینستا','insta','instagram','گرام']
   };
 
-  function setupRecognition() {
+  const appNames = {whatsapp:'واتساپ', camera:'دوربین', email:'ایمیل', instagram:'اینستاگرام'};
+
+  // ── مقداردهی اولیه recognition ──
+  function buildRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return null;
-
     const rec = new SR();
-    rec.lang = 'fa-IR';
-    rec.continuous = false;
-    rec.interimResults = true;
-    rec.maxAlternatives = 5;
+    rec.lang            = 'fa-IR';
+    rec.continuous      = true;   // iOS نیاز به continuous دارد
+    rec.interimResults  = true;
+    rec.maxAlternatives = 3;
 
     rec.onstart = () => {
+      isListening = true;
       setListeningUI(true);
     };
 
     rec.onresult = (e) => {
-      let transcript = '';
+      let text = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        for (let j = 0; j < e.results[i].length; j++) {
-          transcript += e.results[i][j].transcript;
-        }
+        text += e.results[i][0].transcript;
       }
-      transcript = transcript.toLowerCase().trim();
-      document.getElementById('micTranscript').textContent = '🎤 ' + transcript;
-      setStatusText('شنیدم: ' + transcript, 'active');
+      text = text.toLowerCase().trim();
+      document.getElementById('micTranscript').textContent = '🎤 ' + text;
+      setStatusText('شنیدم: ' + text, 'active');
 
-      if (e.results[e.resultIndex].isFinal) {
-        processVoice(transcript);
+      if (e.results[e.results.length - 1].isFinal) {
+        processVoice(text);
       }
     };
 
-    rec.onerror = (e) => {
-      if (e.error === 'no-speech') {
-        setStatusText('صدایی شنیده نشد، دوباره امتحان کن', '');
-      } else if (e.error === 'not-allowed') {
-        setStatusText('دسترسی به میکروفون داده نشد!', '');
-        showToast('⚠️ دسترسی میکروفون رو در تنظیمات Safari فعال کن');
-      } else {
-        setStatusText('خطا: ' + e.error, '');
+    rec.onerror = (ev) => {
+      console.log('Speech error:', ev.error);
+      if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
+        setStatusText('⛔ دسترسی میکروفون رد شد! در تنظیمات Safari فعال کن.', '');
+        showToast('⚠️ Settings → Safari → Microphone → Allow');
+        isListening = false;
+        setListeningUI(false);
+      } else if (ev.error === 'no-speech') {
+        // بی‌صدا بود، ادامه بده
+        setStatusText('صدایی نشنیدم، دوباره بگو...', 'active');
       }
-      setListeningUI(false);
+      // بقیه خطاها را نادیده بگیر و ادامه بده
     };
 
     rec.onend = () => {
-      setListeningUI(false);
+      // اگر کاربر هنوز روشن کرده، خودکار ری‌استارت کن
+      if (isListening) {
+        restartTimer = setTimeout(() => {
+          try { rec.start(); } catch(e) {}
+        }, 300);
+      } else {
+        setListeningUI(false);
+      }
     };
 
     return rec;
@@ -728,9 +738,12 @@
     for (const [app, words] of Object.entries(keywords)) {
       for (const word of words) {
         if (text.includes(word)) {
-          const btn = document.getElementById('btn-' + app);
-          setStatusText('✓ ' + {whatsapp:'واتساپ',camera:'دوربین',email:'ایمیل',instagram:'اینستاگرام'}[app] + ' شناخته شد!', 'success');
-          openApp(app, btn);
+          setStatusText('✓ ' + appNames[app] + ' شناخته شد!', 'success');
+          openApp(app, document.getElementById('btn-' + app));
+          // بعد از شناسایی چند ثانیه صبر کن بعد گوش بده
+          setTimeout(() => {
+            if (isListening) setStatusText('🎤 بگو...', 'active');
+          }, 2000);
           return;
         }
       }
@@ -738,6 +751,7 @@
     setStatusText('نشناختم! بگو: واتساپ، دوربین، ایمیل یا اینستاگرام', '');
   }
 
+  // ── toggle اصلی ──
   function toggleVoice() {
     if (!isListening) {
       startListening();
@@ -747,24 +761,51 @@
   }
 
   function startListening() {
-    if (!recognition) {
-      recognition = setupRecognition();
-    }
-    if (!recognition) {
-      showToast('مرورگر از تشخیص صدا پشتیبانی نمی‌کنه');
+    // بررسی پشتیبانی مرورگر
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      showToast('❌ Safari از تشخیص صدا پشتیبانی نمی‌کنه');
+      setStatusText('❌ مرورگر پشتیبانی نمی‌کنه', '');
       return;
     }
+
+    // هر بار یه recognition جدید بساز (iOS نیاز داره)
+    if (recognition) {
+      try { recognition.abort(); } catch(e) {}
+    }
+    recognition = buildRecognition();
+
+    isListening = true;
+    setListeningUI(true);
+    setStatusText('🎤 در حال اتصال به میکروفون...', 'active');
+
     try {
       recognition.start();
-    } catch(e) {}
+    } catch(e) {
+      console.log('start error:', e);
+      showToast('خطا در شروع — دوباره امتحان کن');
+      isListening = false;
+      setListeningUI(false);
+    }
   }
 
   function stopListening() {
+    isListening = false;
+    clearTimeout(restartTimer);
     if (recognition) {
       try { recognition.stop(); } catch(e) {}
+      try { recognition.abort(); } catch(e) {}
+      recognition = null;
     }
     setListeningUI(false);
+    setStatusText('اسم برنامه رو بگو: واتساپ، دوربین، ایمیل، اینستاگرام', '');
   }
+
+  // ── Fix iOS: از touchend استفاده کن نه onclick ──
+  document.getElementById('micCard').addEventListener('touchend', function(e) {
+    e.preventDefault();
+    toggleVoice();
+  }, { passive: false });
 
   function setListeningUI(listening) {
     isListening = listening;
