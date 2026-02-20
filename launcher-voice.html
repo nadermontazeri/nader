@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="لانچر">
+  <title>لانچر</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg1: #0d0d1a;
+      --glass: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.12);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.45);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg1);
+      font-family: 'Vazirmatn', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px);
+    }
+
+    .bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.08) 0%, transparent 70%),
+        linear-gradient(160deg, #0d0d1a 0%, #111128 100%);
+      animation: bgShift 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgShift {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(30deg); }
+    }
+
+    .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 0.5; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    .container {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 400px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 28px;
+    }
+
+    .header {
+      text-align: center;
+      animation: fadeDown 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .clock {
+      font-size: 68px;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -3px;
+    }
+    .date { font-size: 14px; color: var(--muted); margin-top: 6px; font-weight: 400; }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .app-btn {
+      position: relative;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      perspective: 600px;
+      animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .app-btn:nth-child(1) { animation-delay: 0.1s; }
+    .app-btn:nth-child(2) { animation-delay: 0.2s; }
+    .app-btn:nth-child(3) { animation-delay: 0.3s; }
+    .app-btn:nth-child(4) { animation-delay: 0.4s; }
+
+    .app-btn-inner {
+      position: relative;
+      border-radius: 28px;
+      padding: 24px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .btn-whatsapp .app-btn-inner {
+      background: linear-gradient(145deg, #1a3a2a, #0d2018);
+      border: 1px solid rgba(37,211,102,0.25);
+      box-shadow: 0 20px 60px rgba(37,211,102,0.2), 0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(37,211,102,0.2), inset 0 -2px 0 rgba(0,0,0,0.3);
+    }
+    .btn-camera .app-btn-inner {
+      background: linear-gradient(145deg, #1a1a2e, #0d0d1f);
+      border: 1px solid rgba(139,92,246,0.25);
+      box-shadow: 0 20px 60px rgba(139,92,246,0.2), 0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(139,92,246,0.2), inset 0 -2px 0 rgba(0,0,0,0.3);
+    }
+    .btn-email .app-btn-inner {
+      background: linear-gradient(145deg, #1a2535, #0d1520);
+      border: 1px solid rgba(59,130,246,0.25);
+      box-shadow: 0 20px 60px rgba(59,130,246,0.2), 0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(59,130,246,0.2), inset 0 -2px 0 rgba(0,0,0,0.3);
+    }
+    .btn-instagram .app-btn-inner {
+      background: linear-gradient(145deg, #2a1a1a, #1a0d0d);
+      border: 1px solid rgba(236,72,153,0.25);
+      box-shadow: 0 20px 60px rgba(236,72,153,0.2), 0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(236,72,153,0.2), inset 0 -2px 0 rgba(0,0,0,0.3);
+    }
+
+    /* Active press */
+    .app-btn:active .app-btn-inner,
+    .app-btn.triggered .app-btn-inner {
+      transform: scale(0.93) rotateX(8deg);
+    }
+    .app-btn.triggered .app-btn-inner {
+      transition: transform 0.1s;
+    }
+
+    /* Highlight on voice trigger */
+    .app-btn.triggered.btn-whatsapp .app-btn-inner {
+      box-shadow: 0 0 0 3px rgba(37,211,102,0.8), 0 8px 20px rgba(37,211,102,0.4);
+    }
+    .app-btn.triggered.btn-camera .app-btn-inner {
+      box-shadow: 0 0 0 3px rgba(139,92,246,0.8), 0 8px 20px rgba(139,92,246,0.4);
+    }
+    .app-btn.triggered.btn-email .app-btn-inner {
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.8), 0 8px 20px rgba(59,130,246,0.4);
+    }
+    .app-btn.triggered.btn-instagram .app-btn-inner {
+      box-shadow: 0 0 0 3px rgba(236,72,153,0.8), 0 8px 20px rgba(236,72,153,0.4);
+    }
+
+    .icon-wrap {
+      width: 60px; height: 60px;
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-whatsapp .icon-wrap { background: linear-gradient(135deg, #25d366, #128c3c); box-shadow: 0 8px 24px rgba(37,211,102,0.5), 0 2px 8px rgba(0,0,0,0.3); }
+    .btn-camera .icon-wrap { background: linear-gradient(135deg, #a78bfa, #7c3aed); box-shadow: 0 8px 24px rgba(139,92,246,0.5), 0 2px 8px rgba(0,0,0,0.3); }
+    .btn-email .icon-wrap { background: linear-gradient(135deg, #60a5fa, #2563eb); box-shadow: 0 8px 24px rgba(59,130,246,0.5), 0 2px 8px rgba(0,0,0,0.3); }
+    .btn-instagram .icon-wrap { background: linear-gradient(135deg, #f9a8d4, #ec4899, #be185d, #9d174d); box-shadow: 0 8px 24px rgba(236,72,153,0.5), 0 2px 8px rgba(0,0,0,0.3); }
+
+    .icon-wrap svg { width: 32px; height: 32px; fill: white; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+    .app-label { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .app-sublabel { font-size: 11px; color: var(--muted); font-weight: 300; margin-top: -6px; }
+
+    .app-btn-inner::before {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ===== EXIT BUTTON ===== */
+    .exit-btn {
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      animation: fadeUp 0.8s 0.5s cubic-bezier(0.16,1,0.3,1) both;
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    .exit-btn-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 18px;
+      background: linear-gradient(145deg, #2a1515, #1a0a0a);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 22px;
+      box-shadow: 0 16px 40px rgba(239,68,68,0.15), 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(239,68,68,0.15);
+      transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s;
+    }
+    .exit-btn:active .exit-btn-inner {
+      transform: scale(0.96);
+      box-shadow: 0 4px 12px rgba(239,68,68,0.2), 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .exit-icon {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, #f87171, #dc2626);
+      border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 18px rgba(239,68,68,0.5);
+      flex-shrink: 0;
+    }
+    .exit-icon svg { width: 22px; height: 22px; fill: white; }
+    .exit-text { text-align: right; }
+    .exit-label { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.9); display: block; }
+    .exit-sublabel { font-size: 11px; color: var(--muted); font-weight: 300; }
+    .exit-btn-inner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ===== VOICE BUTTON ===== */
+    .voice-btn {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      box-shadow: 0 12px 35px rgba(99,102,241,0.5), 0 4px 12px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.8s 0.6s cubic-bezier(0.16,1,0.3,1) both;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .voice-btn svg { width: 28px; height: 28px; fill: white; position: relative; z-index: 1; }
+    .voice-btn:active { transform: scale(0.92); }
+
+    .voice-btn.listening {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 12px 35px rgba(239,68,68,0.6), 0 4px 12px rgba(0,0,0,0.3);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 12px 35px rgba(239,68,68,0.6), 0 0 0 0 rgba(239,68,68,0.4); }
+      50% { box-shadow: 0 12px 35px rgba(239,68,68,0.6), 0 0 0 16px rgba(239,68,68,0); }
+    }
+
+    .voice-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 6px;
+      animation: fadeUp 0.8s 0.7s both;
+    }
+
+    /* ===== VOICE STATUS BAR ===== */
+    .voice-status {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 52px;
+      animation: fadeUp 0.8s 0.65s both;
+      transition: background 0.3s;
+    }
+    .voice-status.active {
+      background: rgba(99,102,241,0.1);
+      border-color: rgba(99,102,241,0.3);
+    }
+    .voice-status.success {
+      background: rgba(34,197,94,0.1);
+      border-color: rgba(34,197,94,0.3);
+    }
+    .voice-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .voice-status.active .voice-dot { background: #6366f1; animation: blink 0.8s infinite; }
+    .voice-status.success .voice-dot { background: #22c55e; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    .voice-status-text { font-size: 13px; color: var(--muted); flex: 1; }
+    .voice-status.active .voice-status-text { color: rgba(255,255,255,0.8); }
+    .voice-status.success .voice-status-text { color: #4ade80; }
+
+    /* Waves around voice btn when listening */
+    .waves {
+      position: absolute; inset: -12px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .wave {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(239,68,68,0.4);
+      animation: waveOut 1.5s ease-out infinite;
+      opacity: 0;
+    }
+    .wave:nth-child(2) { animation-delay: 0.5s; }
+    .wave:nth-child(3) { animation-delay: 1s; }
+    @keyframes waveOut {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transform: scale(0);
+      animation: rippleAnim 0.5s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim { to { transform: scale(3); opacity: 0; } }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(20,20,40,0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 100px;
+      padding: 12px 24px;
+      font-size: 13px;
+      color: white;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Exit confirm overlay */
+    .overlay {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay.show { opacity: 1; pointer-events: all; }
+    .overlay-box {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 32px 28px;
+      text-align: center;
+      max-width: 300px;
+      width: 90%;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .overlay.show .overlay-box { transform: scale(1); }
+    .overlay-icon { font-size: 48px; margin-bottom: 16px; }
+    .overlay-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .overlay-desc { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .overlay-btns { display: flex; gap: 12px; }
+    .overlay-btns button {
+      flex: 1; padding: 14px;
+      border-radius: 14px; border: none;
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-cancel { background: rgba(255,255,255,0.08); color: var(--text); }
+    .btn-exit { background: linear-gradient(135deg, #f87171, #dc2626); color: white; }
+  </style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="particles" id="particles"></div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="clock" id="clock">--:--</div>
+    <div class="date" id="date"></div>
+  </div>
+
+  <div class="grid">
+    <!-- WhatsApp -->
+    <button class="app-btn btn-whatsapp" id="btn-whatsapp" onclick="openApp('whatsapp', this)">
+      <div class="app-btn-inner">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        </div>
+        <span class="app-label">واتساپ</span>
+        <span class="app-sublabel">WhatsApp</span>
+      </div>
+    </button>
+
+    <!-- Camera -->
+    <button class="app-btn btn-camera" id="btn-camera" onclick="openApp('camera', this)">
+      <div class="app-btn-inner">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 100-6.4 3.2 3.2 0 000 6.4z"/><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+        </div>
+        <span class="app-label">دوربین</span>
+        <span class="app-sublabel">Camera</span>
+      </div>
+    </button>
+
+    <!-- Email -->
+    <button class="app-btn btn-email" id="btn-email" onclick="openApp('email', this)">
+      <div class="app-btn-inner">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </div>
+        <span class="app-label">ایمیل</span>
+        <span class="app-sublabel">Mail</span>
+      </div>
+    </button>
+
+    <!-- Instagram -->
+    <button class="app-btn btn-instagram" id="btn-instagram" onclick="openApp('instagram', this)">
+      <div class="app-btn-inner">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </div>
+        <span class="app-label">اینستاگرام</span>
+        <span class="app-sublabel">Instagram</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Voice status bar -->
+  <div class="voice-status" id="voiceStatus">
+    <div class="voice-dot"></div>
+    <span class="voice-status-text" id="voiceStatusText">اسم برنامه رو بگو تا باز بشه...</span>
+  </div>
+
+  <!-- Voice button -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+    <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+      <div class="waves" id="waves" style="display:none">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+      </div>
+      <svg id="micIcon" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+    </button>
+    <span class="voice-label" id="voiceLabel">ضبط صدا</span>
+  </div>
+
+  <!-- Exit button -->
+  <button class="exit-btn" onclick="showExitConfirm()">
+    <div class="exit-btn-inner">
+      <div class="exit-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+      </div>
+      <div class="exit-text">
+        <span class="exit-label">خروج از برنامه</span>
+        <span class="exit-sublabel">بستن لانچر</span>
+      </div>
+    </div>
+  </button>
+
+</div>
+
+<!-- Exit confirm overlay -->
+<div class="overlay" id="exitOverlay">
+  <div class="overlay-box">
+    <div class="overlay-icon">👋</div>
+    <div class="overlay-title">خروج از برنامه</div>
+    <div class="overlay-desc">مطمئنی می‌خوای از لانچر خارج بشی؟</div>
+    <div class="overlay-btns">
+      <button class="btn-cancel" onclick="hideExitConfirm()">انصراف</button>
+      <button class="btn-exit" onclick="exitApp()">خروج</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== CLOCK =====
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = h + ':' + m;
+    const days = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
+    const months = ['ژانویه','فوریه','مارس','آوریل','مه','ژوئن','جولای','اوت','سپتامبر','اکتبر','نوامبر','دسامبر'];
+    document.getElementById('date').textContent = days[now.getDay()] + '، ' + now.getDate() + ' ' + months[now.getMonth()];
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ===== PARTICLES =====
+  const pc = document.getElementById('particles');
+  for (let i = 0; i < 15; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 2;
+    p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*15}s;opacity:${Math.random()*0.3+0.05}`;
+    pc.appendChild(p);
+  }
+
+  // ===== APP OPENER =====
+  function openApp(app, btnEl) {
+    const urls = {
+      whatsapp: 'whatsapp://',
+      camera: null,
+      email: 'mailto:',
+      instagram: 'instagram://'
+    };
+    const names = { whatsapp:'واتساپ', camera:'دوربین', email:'ایمیل', instagram:'اینستاگرام' };
+
+    // Animate button
+    if (btnEl) {
+      btnEl.classList.add('triggered');
+      setTimeout(() => btnEl.classList.remove('triggered'), 500);
+    }
+
+    showToast('در حال باز کردن ' + names[app] + ' ...');
+
+    if (app === 'camera') {
+      const inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = 'image/*,video/*';
+      inp.capture = 'environment';
+      inp.style.display = 'none';
+      document.body.appendChild(inp);
+      inp.click();
+      setTimeout(() => inp.remove(), 2000);
+    } else {
+      window.location.href = urls[app];
+    }
+  }
+
+  // ===== VOICE RECOGNITION =====
+  let recognition = null;
+  let isListening = false;
+
+  // Keywords map - Persian + English variants
+  const keywords = {
+    whatsapp: ['واتساپ','واتس','واتز','whatsapp','وات'],
+    camera: ['دوربین','کمرا','عکس','camera','فیلم'],
+    email: ['ایمیل','میل','email','mail','پست'],
+    instagram: ['اینستاگرام','اینستا','insta','instagram','گرام']
+  };
+
+  function setupRecognition() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return null;
+
+    const rec = new SR();
+    rec.lang = 'fa-IR';
+    rec.continuous = false;
+    rec.interimResults = true;
+    rec.maxAlternatives = 5;
+
+    rec.onstart = () => {
+      setListeningUI(true);
+    };
+
+    rec.onresult = (e) => {
+      let transcript = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        for (let j = 0; j < e.results[i].length; j++) {
+          transcript += e.results[i][j].transcript;
+        }
+      }
+      transcript = transcript.toLowerCase().trim();
+      setStatusText('شنیدم: ' + transcript, 'active');
+
+      if (e.results[e.resultIndex].isFinal) {
+        processVoice(transcript);
+      }
+    };
+
+    rec.onerror = (e) => {
+      if (e.error === 'no-speech') {
+        setStatusText('صدایی شنیده نشد، دوباره امتحان کن', '');
+      } else if (e.error === 'not-allowed') {
+        setStatusText('دسترسی به میکروفون داده نشد!', '');
+        showToast('⚠️ دسترسی میکروفون رو در تنظیمات Safari فعال کن');
+      } else {
+        setStatusText('خطا: ' + e.error, '');
+      }
+      setListeningUI(false);
+    };
+
+    rec.onend = () => {
+      setListeningUI(false);
+    };
+
+    return rec;
+  }
+
+  function processVoice(text) {
+    for (const [app, words] of Object.entries(keywords)) {
+      for (const word of words) {
+        if (text.includes(word)) {
+          const btn = document.getElementById('btn-' + app);
+          setStatusText('✓ ' + {whatsapp:'واتساپ',camera:'دوربین',email:'ایمیل',instagram:'اینستاگرام'}[app] + ' شناخته شد!', 'success');
+          openApp(app, btn);
+          return;
+        }
+      }
+    }
+    setStatusText('نشناختم! بگو: واتساپ، دوربین، ایمیل یا اینستاگرام', '');
+  }
+
+  function toggleVoice() {
+    if (!isListening) {
+      startListening();
+    } else {
+      stopListening();
+    }
+  }
+
+  function startListening() {
+    if (!recognition) {
+      recognition = setupRecognition();
+    }
+    if (!recognition) {
+      showToast('مرورگر از تشخیص صدا پشتیبانی نمی‌کنه');
+      return;
+    }
+    try {
+      recognition.start();
+    } catch(e) {}
+  }
+
+  function stopListening() {
+    if (recognition) {
+      try { recognition.stop(); } catch(e) {}
+    }
+    setListeningUI(false);
+  }
+
+  function setListeningUI(listening) {
+    isListening = listening;
+    const btn = document.getElementById('voiceBtn');
+    const waves = document.getElementById('waves');
+    const label = document.getElementById('voiceLabel');
+    const micIcon = document.getElementById('micIcon');
+
+    if (listening) {
+      btn.classList.add('listening');
+      waves.style.display = 'block';
+      label.textContent = 'در حال گوش دادن...';
+      micIcon.innerHTML = '<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>';
+      setStatusText('داری چی می‌گی؟ 🎤', 'active');
+    } else {
+      btn.classList.remove('listening');
+      waves.style.display = 'none';
+      label.textContent = 'ضبط صدا';
+      micIcon.innerHTML = '<path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>';
+      if (!document.getElementById('voiceStatusText').textContent.includes('✓')) {
+        setStatusText('اسم برنامه رو بگو تا باز بشه...', '');
+      }
+    }
+  }
+
+  function setStatusText(text, type) {
+    const el = document.getElementById('voiceStatus');
+    const txt = document.getElementById('voiceStatusText');
+    txt.textContent = text;
+    el.className = 'voice-status' + (type ? ' ' + type : '');
+  }
+
+  // ===== EXIT =====
+  function showExitConfirm() {
+    document.getElementById('exitOverlay').classList.add('show');
+  }
+  function hideExitConfirm() {
+    document.getElementById('exitOverlay').classList.remove('show');
+  }
+  function exitApp() {
+    window.close();
+    // Fallback for iOS PWA
+    setTimeout(() => {
+      window.location.href = 'about:blank';
+    }, 300);
+  }
+
+  // ===== TOAST =====
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // ===== RIPPLE =====
+  document.querySelectorAll('.app-btn').forEach(btn => {
+    btn.addEventListener('touchstart', function(e) {
+      const inner = this.querySelector('.app-btn-inner');
+      const r = document.createElement('div');
+      r.className = 'ripple';
+      const rect = inner.getBoundingClientRect();
+      const touch = e.touches[0];
+      r.style.cssText = `width:60px;height:60px;left:${touch.clientX-rect.left-30}px;top:${touch.clientY-rect.top-30}px`;
+      inner.appendChild(r);
+      setTimeout(() => r.remove(), 600);
+    }, { passive: true });
+  });
+</script>
+</body>
+</html>
